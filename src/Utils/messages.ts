@@ -602,6 +602,26 @@ export const generateWAMessageContent = async (
 				initiatedByMe: true
 			}
 		}
+	} else if (hasNonNullishProperty(message, 'interactiveMessage')) {
+		m.interactiveMessage = { ...message.interactiveMessage }
+
+		if (message.interactiveMessage.header) {
+			m.interactiveMessage.header = { ...message.interactiveMessage.header }
+			if (message.interactiveMessage.header.image) {
+				const { imageMessage } = await prepareWAMessageMedia({ image: message.interactiveMessage.header.image }, options)
+				m.interactiveMessage.header.imageMessage = imageMessage
+				m.interactiveMessage.header.hasMediaAttachment = true
+			} else if (message.interactiveMessage.header.video) {
+				const { videoMessage } = await prepareWAMessageMedia({ video: message.interactiveMessage.header.video }, options)
+				m.interactiveMessage.header.videoMessage = videoMessage
+				m.interactiveMessage.header.hasMediaAttachment = true
+			} else if (message.interactiveMessage.header.document) {
+				const documentHeader = message.interactiveMessage.header as any
+				const { documentMessage } = await prepareWAMessageMedia({ document: documentHeader.document, mimetype: documentHeader.mimetype || 'application/pdf', fileName: documentHeader.fileName }, options)
+				m.interactiveMessage.header.documentMessage = documentMessage
+				m.interactiveMessage.header.hasMediaAttachment = true
+			}
+		}
 	} else {
 		m = await prepareWAMessageMedia(message, options)
 	}

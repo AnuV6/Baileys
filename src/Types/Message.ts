@@ -217,6 +217,21 @@ export type WASendableProduct = Omit<proto.Message.ProductMessage.IProductSnapsh
 	productImage: WAMediaUpload
 }
 
+export type WAInteractiveMessage = Omit<proto.Message.IInteractiveMessage, 'header'> & {
+	header?: proto.Message.InteractiveMessage.IHeader &
+		({
+			hasMediaAttachment?: boolean
+		} & (
+			| { image?: WAMediaUpload; video?: never; document?: never }
+			| { document?: WAMediaUpload; fileName?: string; mimetype?: string; image?: never; video?: never }
+			| { video?: WAMediaUpload; image?: never; document?: never }
+		))
+}
+
+export type AnyInteractiveMessageContent = {
+	interactiveMessage: WAInteractiveMessage
+}
+
 export type AnyRegularMessageContent = (
 	| ({
 			text: string
@@ -265,6 +280,7 @@ export type AnyRegularMessageContent = (
 			body?: string
 			footer?: string
 	  }
+	| AnyInteractiveMessageContent
 	| SharePhoneNumber
 	| RequestPhoneNumber
 ) &
